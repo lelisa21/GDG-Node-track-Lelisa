@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student API</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 40px; }
+      input, button { padding: 8px; margin: 5px;border-radius: 3px; }
+      table { border-collapse: collapse; width: 70%; margin-top: 20px; }
+      th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+      th { background-color: #dcfed2; }
+      button { cursor: pointer; color: green; background: #c0f6ae; border:none;}
+    </style>
+  </head>
+  <body>
+    <h1>SIMPLE STUDENT API</h1>
+
+    <form id="addNewStud">
+      <input
+        type="text"
+        id="nameInput"
+        placeholder="Enter Student Name"
+        required
+      />
+      <button type="submit">Add Student</button>
+    </form>
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>NAME</th>
+          <th>ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+
+    <script>
+      const API_URL = "http://localhost:4000/students";
+      const getStudInfo = async () => {
+        try {
+          const response = await fetch(API_URL);
+          const students = await response.json();  
+
+          const tbody = document.getElementById("tableBody");
+          tbody.innerHTML = "";  
+
+          students.forEach((stud) => {
+            const trow = document.createElement("tr");
+
+            trow.innerHTML = `
+              <td>${stud.id}</td>
+              <td>${stud.name}</td>
+              <td>
+                <button onclick="editStudent(${stud.id}, '${stud.name}')">Edit</button>
+                <button onclick="deleteStudent(${stud.id})">Delete</button>
+              </td>
+            `;
+
+            tbody.appendChild(trow);
+          });
+        } catch (err) {
+          console.error("Error loading students:", err);
+        }
+      };
+
+      document.getElementById("addNewStud").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const name = document.getElementById("nameInput").value.trim();
+        if (!name) return;
+
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }, 
+          body: JSON.stringify({ name }),
+        });
+
+        document.getElementById("nameInput").value = "";
+        getStudInfo();  
+      });
+
+
+      async function deleteStudent(id) {
+        if (confirm("Delete this student?")) {
+          await fetch(`${API_URL}/${id}`, {
+            method: "DELETE",
+          });
+          getStudInfo();  
+        }
+      }
+
+      async function editStudent(id, currentName) {
+        const newName = prompt("Enter new name:", currentName);
+        if (newName && newName.trim() !== currentName) {
+          await fetch(`${API_URL}/${id}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: newName.trim() }),
+          });
+          getStudInfo();
+        }
+      }
+      getStudInfo();
+    </script>
+  </body>
+</html>
