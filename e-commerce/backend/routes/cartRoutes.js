@@ -10,7 +10,7 @@ const cartAuth = require("../middleware/cartAuth");
 
 const router = express.Router();
 
-router.use(cartAuth);
+// router.use(cartAuth);
 
 router.post("/", addToCart);
 router.get("/", getCart);

@@ -1,7 +1,6 @@
 const Cart = require("../models/CartModel");
 
 const addToCart = async (req, res) => {
-  const userId = req.user._id;
   const { productId, quantity } = req.body;
 
   if (!productId || !quantity) {
@@ -9,11 +8,10 @@ const addToCart = async (req, res) => {
   }
 
   try {
-    let cart = await Cart.findOne({ user: userId });
+ let cart = await Cart.findOne();
 
     if (!cart) {
       cart = await Cart.create({
-        user: userId,
         items: [{ product: productId, quantity }],
       });
     } else {
@@ -37,11 +35,8 @@ const addToCart = async (req, res) => {
 };
 
 const getCart = async (req, res) => {
-  const userId = req.user._id;
-
   try {
-    const cart = await Cart.findOne({ user: userId })
-      .populate("items.product");
+    const cart = await Cart.findOne().populate("items.product");
 
     if (!cart) {
       return res.status(404).json({ error: "Cart empty" });
@@ -54,11 +49,10 @@ const getCart = async (req, res) => {
 };
 
 const removeFromCart = async (req, res) => {
-  const userId = req.user._id;
   const { productId } = req.body;
 
   try {
-    const cart = await Cart.findOne({ user: userId });
+    const cart = await Cart.findOne();
 
     if (!cart) {
       return res.status(404).json({ error: "Cart not found" });
@@ -77,10 +71,8 @@ const removeFromCart = async (req, res) => {
 };
 
 const clearCart = async (req, res) => {
-  const userId = req.user._id;
-
   try {
-    await Cart.findOneAndDelete({ user: userId });
+    await Cart.findOneAndDelete();
     res.status(200).json({ message: "Cart cleared" });
   } catch (error) {
     res.status(400).json({ error: error.message });
