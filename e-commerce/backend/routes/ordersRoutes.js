@@ -1,11 +1,16 @@
 const express = require("express");
+const {
+  createOrder,
+  getOrders,
+  updateOrderStatus,
+} = require("../controllers/ordersController");
+
+const validateOrder = require("../middleware/validateOrder");
+
 const router = express.Router();
 
-router.get("/", (req , res) => {
-    res.json({message : "orders page"})
-})
-router.get("/:id", (req , res) => {
-    res.json({message : " Specific order page"})
-})
+router.post("/", validateOrder, createOrder);
+router.get("/", getOrders);
+router.put("/:id/status", updateOrderStatus);
 
 module.exports = router;
