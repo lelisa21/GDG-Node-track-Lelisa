@@ -1,20 +1,14 @@
-const express = require("express");
-const {
-  addToCart,
-  getCart,
-  removeFromCart,
-  clearCart,
-} = require("../controllers/cartController");
-
-const cartAuth = require("../middleware/cartAuth");
-
+import express from "express"
+import {getCart , getCartSummary , addToCart , updateCartItem, removeFromCart, clearCart} from "../controllers/cartController.js"
 const router = express.Router();
 
 // router.use(cartAuth);
-
+router.get("/" , getCart)
+router.get("/summary" , getCartSummary)
 router.post("/", addToCart);
-router.get("/", getCart);
-router.delete("/remove", removeFromCart);
-router.delete("/clear", clearCart);
+router.put("/:productId" , updateCartItem)
 
-module.exports = router;
+router.delete("/:productId", removeFromCart);
+router.delete("/" , clearCart)
+
+export default  router;

@@ -1,13 +1,13 @@
-const express = require("express");
+import express from "express"
+import * as productController from "../controllers/productController.js"
+
 const router = express.Router();
-const productValidator = require("../middleware/productValidator");
 
-const { getAllProducts,getProduct,createProduct,deleteProduct,updateProduct} = require("../controllers/productController");
+router.get("/", productController.getProducts)
+router.get("/:id", productController.getProduct);
+router.get("/stats" , productController.getProductStats)
+router.post("/" ,productController.createProduct);
+router.delete("/:id" , productController.deleteProduct);
+router.put("/:id" , productController.updateProduct);
 
-router.get("/", getAllProducts)
-router.get("/:id", getProduct);
-router.post("/" ,productValidator, createProduct);
-router.delete("/:id" , deleteProduct);
-router.put("/:id" , updateProduct);
-
-module.exports = router;
+export default router;

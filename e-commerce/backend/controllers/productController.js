@@ -1,79 +1,130 @@
-const Product = require("../models/ProductModel")
-const mongoose = require("mongoose");
+import Product from "../models/ProductModel.js";
+import { ApiResponse } from "../utils/apiResponse.js";
 
-const getAllProducts = async (req ,res) => {
-    const product = await Product.find({}).sort({createdAt: -1})
-    res.status(200).json(product);
-}
-
-const getProduct = async (req , res) => {
-    const {id} = req.params;
-   if(!mongoose.Types.ObjectId.isValid(id)){
-    return res.status(404).json({error: "No such product"})
-   }
-    const product = await Product.findById(id);
-    if(!product){
-        return res.status(404).json({error : "No such product"})
-    }
-
-    res.status(200).json(product);
-}
-const createProduct = async (req , res)=> {
-    const {name, description, price, stock , category , imageUrl, rating} =  req.body;
-
-    const emptyFields = [];
-    if(!name) emptyFields.push("name");
-    if(!description) emptyFields.push("description");
-    if(price === undefined) emptyFields.push("price");
-    if(stock === undefined) emptyFields.push("stock");
-    if(!category) emptyFields.push("category");
-
-    
-    if(emptyFields.length > 0){
-        return res.status(400).json({error : "please fill in all fields" , emptyFields})
-    }
+// get all products by page within it's limited statuses
+export const getProducts = async(req, res) => {
     try {
-      const product  = await Product.create({name, description, price , stock , category , imageUrl, rating});
+        const {catagory , minPrice, maxPrice, search,page = 1, limit = 10,  sort="createdAt" , order = "desc"} = req.body;
+    
+        const filter = {isActive:true};
+        if(catagory)  filter.catagory = catagory;
+        if(minPrice || maxPrice) {
+            filter.price = {}
+            if(minPrice) filter.price.$gte  = parseFloat(minPrice);
+            if(maxPrice) filter.price.$gte  = parseFloat(maxPrice);
+        }
+        if(search) filter.$text - {$search:search}
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+        const sortOrder = order === 'desc' ? -1 : 1;
 
-      res.status(201).json(product);
+        const [products , total] = await Promise.all([
+            Product.find(filter).sort({[sort]:sortOrder})
+            .skip(skip).limit(parseInt(limit)),
+            Product.countDocuments(filter)
+        ]);
+
+        const catagories = await Product.distinct("catagory" , {isActive:true});
+        res.json(ApiResponse.paginated({
+            products,
+            filters:{catagories, minPrice, maxPrice}
+        },page, limit, total))
+
     } catch (error) {
-       res.status(400).json({error:error.message})
+        res.status(500).json(ApiResponse.error(error.message));
     }
-}
+};
 
-const deleteProduct = async (req , res) => {
-     const {id} = req.params;
-   if(!mongoose.Types.ObjectId.isValid(id)){
-    return res.status(404).json({error: "No such product"})
+// get single Product
+export const  getProduct = async (req ,res) => {
+   try {
+    const product = await Product.findById(req.params.id);
+    if(!product) return res.status(404).json(ApiResponse.error("Product not Found"));
+
+    // find realted products
+    const related = await Product.find({
+        _id:{$ne:product._id},
+        catagory:product.catagory,
+        isActive:true
+    }).limit(10);
+    res.json(ApiResponse.success({product, related}))
+   } catch (error) {
+    res.status(400).json(ApiResponse.error(error.message))
    }
-   const product = await Product.findOneAndDelete({_id:id})
-   if(!product){
-        return res.status(404).json({error : "No such product"})
-    }
+};
 
-    res.status(200).json(product);
+// create new Product
+
+export const createProduct = async (req, res) => {
+    try {
+        const product = new Product(req.body);
+        await product.save();
+        res.status(201).json(ApiResponse.success(product , "Product created"))
+    } catch (error) {
+        res.status(400).json(ApiResponse.error(error.message))
+    }
+};
+
+// Update product
+export const updateProduct = async (req, res) => {
+    try {
+       const product = await Product.findByIdAndUpdate(
+        req.params.id,
+        req,body,
+        {new:true , runValidators:true}
+       );
+       
+       if(!product) 
+        return res.status(404).json(ApiResponse.error("Product not Found"));
+       res.json(ApiResponse.success(product, "product updated"));
+    } catch (error) {
+        res.status(400).json(ApiResponse.error(error.message))
+    }
 }
 
-const updateProduct = async (req , res) => {
-     const {id} = req.params;
-   if(!mongoose.Types.ObjectId.isValid(id)){
-    return res.status(404).json({error: "No such product"})
-   }
-   const product = await Product.findOneAndUpdate({_id:id} , {
-    ...req.body
-   }, {new:true});
-   
-   if(!product){
-        return res.status(404).json({error : "No such product"})
+// delete specific product
+export const deleteProduct = async (req, res) => {
+    try {
+        const product = await Product.findByIdAndUpdate(
+            req.params.id,
+            {isActive:false},
+            {new : true}
+        );
+        if(!product) return res.status(404).json(ApiResponse.error("Product not found"))
+        
+        res.json(ApiResponse.success(null, "Product Deactivated"));
+    } catch (error) {
+        res.status(400).json(ApiResponse.error(error.message))
     }
+};
 
-    res.status(200).json(product);
-}
+export const getProductStats = async (req , res) => {
+    try {
+        const stats = await Product.aggregate([
+            {$match:{isActive:true}},
+            {$group:{
+                _id:null,
+                totalProducts:{$sum:1},
+                totalStock:{$sum:"$stock"},
+                avgPrice:{$avg:"$price"},
+                maxPrice:{$max:"$price"},
+                minPrice:{$min: "$price"}
+            }}
+        ]);
 
-module.exports = {
-    getAllProducts,
-    getProduct,
-    createProduct,
-    deleteProduct,
-    updateProduct
+        const catagoryStats = await Product.aggregate([
+            {$match:{isActive:true}},
+            {$group:{
+                _id:"$catagory",
+                count:{$sum: 1},
+                avgPrice:{$avg: "$price"}
+            }},
+            {$sort: {count:-1}}
+        ])
+        res.json(ApiResponse.success({
+            overall:stats[0] || {},
+            byCatagory:catagoryStats
+        }))
+    } catch (error) {
+      res.status(500).json(ApiResponse.error(error.message))  
+    }
 }
