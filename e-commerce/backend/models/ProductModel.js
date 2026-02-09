@@ -23,7 +23,7 @@ const productSchema = new Schema({
         min:[0, "Stock cannot be negative"],
         default:0
     },
-    catagory:{
+    category:{
         type:String,
         required:[true, "Catagory is required"],
         enum:{

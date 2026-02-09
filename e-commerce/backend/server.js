@@ -2,7 +2,7 @@ import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/dbConfig.js";
-import porductRoutes from "./routes/productRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 import cartRoutes from "./routes/cartRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 
@@ -12,7 +12,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // middleware
-app.use(cors);
+app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
@@ -28,7 +28,7 @@ app.get("/", (req, res) => {
 });
 
 // routes
-app.use("/products", porductRoutes);
+app.use("/products", productRoutes);
 app.use("/cart", cartRoutes);
 app.use("/orders", orderRoutes);
 
@@ -47,9 +47,7 @@ app.use((err, req, res, next) => {
     error: "something went wrong",
     message: process.env.NODE_ENV === "development" ? err.message : undefined,
   });
-  next()
 });
-
 const startServer = async () => {
   try {
     await connectDB();

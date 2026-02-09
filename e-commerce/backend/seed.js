@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import Product from './models/ProductModel.js';
-
 dotenv.config();
+import Product from './models/ProductModel.js';
+import connectDB from './config/dbConfig.js';
 
 const products = [
   {
@@ -81,9 +81,7 @@ const products = [
 
 const seedDatabase = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    console.log('Connected to MongoDB');
-
+    await connectDB()
     // Clear existing products
     await Product.deleteMany({});
     console.log('Cleared existing products');

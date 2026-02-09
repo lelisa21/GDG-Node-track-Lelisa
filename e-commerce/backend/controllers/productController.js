@@ -4,10 +4,10 @@ import { ApiResponse } from "../utils/apiResponse.js";
 // get all products by page within it's limited statuses
 export const getProducts = async(req, res) => {
     try {
-        const {catagory , minPrice, maxPrice, search,page = 1, limit = 10,  sort="createdAt" , order = "desc"} = req.body;
+        const {category , minPrice, maxPrice, search,page = 1, limit = 10,  sort="createdAt" , order = "desc"} = req.query;
     
         const filter = {isActive:true};
-        if(catagory)  filter.catagory = catagory;
+        if(category)  filter.category = category;
         if(minPrice || maxPrice) {
             filter.price = {}
             if(minPrice) filter.price.$gte  = parseFloat(minPrice);
@@ -23,7 +23,7 @@ export const getProducts = async(req, res) => {
             Product.countDocuments(filter)
         ]);
 
-        const catagories = await Product.distinct("catagory" , {isActive:true});
+        const catagories = await Product.distinct("category" , {isActive:true});
         res.json(ApiResponse.paginated({
             products,
             filters:{catagories, minPrice, maxPrice}
@@ -43,7 +43,7 @@ export const  getProduct = async (req ,res) => {
     // find realted products
     const related = await Product.find({
         _id:{$ne:product._id},
-        catagory:product.catagory,
+        category:product.category,
         isActive:true
     }).limit(10);
     res.json(ApiResponse.success({product, related}))
@@ -114,7 +114,7 @@ export const getProductStats = async (req , res) => {
         const catagoryStats = await Product.aggregate([
             {$match:{isActive:true}},
             {$group:{
-                _id:"$catagory",
+                _id:"$category",
                 count:{$sum: 1},
                 avgPrice:{$avg: "$price"}
             }},
