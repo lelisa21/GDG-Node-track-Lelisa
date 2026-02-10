@@ -15,7 +15,7 @@ export default class ErrorBoundary extends Component {
       return (
         <div className="text-center py-12">
           <h2 className="text-xl font-bold mb-2">Something went wrong</h2>
-          <button onClick={() => window.location.reload()} className="text-blue-600">
+          <button onClick={() => window.location.reload()} className="text-amber-700">
             Reload Page
           </button>
         </div>

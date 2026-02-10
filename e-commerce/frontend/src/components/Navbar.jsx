@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useState , useEffect} from 'react'
+import { BiSun,BiMoon } from 'react-icons/bi'
 export default function Navbar() {
   const { itemCount } = useCart()
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light')
@@ -13,8 +14,8 @@ export default function Navbar() {
   return (
     <nav className="bg-white dark:bg-gray-800 shadow-lg">
       <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-        <Link to="/" className="text-xl font-bold text-blue-600 dark:text-blue-400">
-          E-Shop
+        <Link to="/" className="text-xl font-bold text-[#c5efcb] dark:text-[#c5efcb]">
+          NaGiza
         </Link>
         
         <div className="flex items-center gap-4">
@@ -25,7 +26,7 @@ export default function Navbar() {
           <Link to="/orders" className="hover:text-blue-600">Orders</Link>
           
           <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-2">
-            {theme === 'dark' ? '🌞' : '🌙'}
+            {theme === 'dark' ? <BiSun /> : <BiMoon />}
           </button>
         </div>
       </div>

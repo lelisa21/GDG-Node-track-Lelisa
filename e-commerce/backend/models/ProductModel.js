@@ -27,7 +27,7 @@ const productSchema = new Schema({
         type:String,
         required:[true, "Catagory is required"],
         enum:{
-            values:["electronics" , "fashion" , "beauty", "health" , "home" , "food" , "books" , "other"],
+            values:["electronics" , "fashion" , "beauty", "health" , "home" , "food" , "books" , "fitness", "others"],
         message:`{VALUE} is not a valid catagory`
     }},
     imageUrl:{
