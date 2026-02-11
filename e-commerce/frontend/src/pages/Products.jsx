@@ -22,7 +22,7 @@ export default function Products() {
   const fetchProducts = async (reset = false) => {
     try {
       setLoading(true);
-      const { data } = await axios.get("http://localhost:4000/products", { params: { ...filters, page } });
+      const { data } = await axios.get("http://localhost:4000/api/products", { params: { ...filters, page } });
       const newProducts = data.data.products;
       setCategories(data.data.filters.categories || []);
       if (reset) setProducts(newProducts);
