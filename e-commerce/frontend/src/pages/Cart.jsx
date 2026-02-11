@@ -1,51 +1,104 @@
-import { useCart } from '../context/CartContext'
-import { Link } from 'react-router-dom'
+import { useCart } from "../context/CartContext"
+import CartItem from "../components/CartItem"
+import { Link } from "react-router-dom"
+import { FiShoppingBag } from "react-icons/fi"
 
-export default function Cart() {
-  const { cart, removeFromCart, updateQuantity, total, clearCart } = useCart()
-  
+const Cart = () => {
+  const { cart, total, itemCount, clearCart } = useCart()
+
+  const taxRate = 0.1
+  const tax = total * taxRate
+  const shipping = total > 100 ? 0 : 10
+  const grandTotal = total + tax + shipping
+
   if (cart.length === 0) {
     return (
-      <div className="text-center py-12">
-        <h2 className="text-xl mb-4">Your cart is empty</h2>
-        <Link to="/products" className="text-blue-600 hover:underline">Browse Products</Link>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center">
+        <FiShoppingBag size={48} className="text-gray-400 mb-4" />
+        <h2 className="text-2xl font-semibold text-gray-800">
+          Your cart is empty
+        </h2>
+        <p className="text-gray-500 mt-2">
+          Looks like you haven’t added anything yet.
+        </p>
+        <Link
+          to="/products"
+          className="mt-6 px-6 py-3 bg-black text-white rounded hover:bg-gray-800 transition"
+        >
+          Continue Shopping
+        </Link>
       </div>
     )
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Shopping Cart</h1>
-        <button onClick={clearCart} className="text-red-600 hover:text-red-800">Clear All</button>
+    <div className="max-w-6xl mx-auto px-6 py-12 grid lg:grid-cols-3 gap-12">
+      {/* Cart Items */}
+      <div className="lg:col-span-2">
+        <div className="flex justify-between items-center mb-8">
+          <h2 className="text-2xl font-semibold text-gray-900">
+            Shopping Cart ({itemCount})
+          </h2>
+
+          <button
+            onClick={clearCart}
+            className="text-sm text-red-600 hover:text-red-700"
+          >
+            Clear Cart
+          </button>
+        </div>
+
+        {cart.map(item => (
+          <CartItem key={item.product._id} item={item} />
+        ))}
       </div>
-      
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          {cart.map(item => (
-            <div key={item.product._id} className="bg-white dark:bg-gray-800 p-4 rounded shadow flex justify-between items-center">
-              <div>
-                <h3 className="font-medium">{item.product.name}</h3>
-                <p>{item.product.price} ETB × {item.quantity}</p>
-              </div>
-              <div className="flex items-center gap-4">
-                <input type="number" min="1" value={item.quantity} onChange={e => updateQuantity(item.product._id, +e.target.value)} className="w-16 p-1 border rounded" />
-                <button onClick={() => removeFromCart(item.product._id)} className="text-red-500">Remove</button>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="bg-white dark:bg-gray-800 p-6 rounded shadow">
-          <h3 className="text-lg font-bold mb-4">Order Summary</h3>
-          <div className="space-y-2 mb-4">
-            <div className="flex justify-between"><span>Subtotal</span><span>{total} ETB</span></div>
-            <div className="flex justify-between"><span>Shipping</span><span>{total > 50000 ? 'FREE' : '2000 ETB'}</span></div>
-            <div className="flex justify-between font-bold"><span>Total</span><span>{total + (total > 50000 ? 0 : 2000)} ETB</span></div>
+
+      {/* Summary Panel */}
+      <div className="border border-gray-200 rounded-xl p-6 h-fit shadow-sm">
+        <h3 className="text-lg font-semibold text-gray-900 mb-6">
+          Order Summary
+        </h3>
+
+        <div className="space-y-3 text-sm text-gray-600">
+          <div className="flex justify-between">
+            <span>Subtotal</span>
+            <span>${total.toFixed(2)}</span>
           </div>
-          <Link to="/checkout" className="block w-full bg-green-600 text-white text-center py-3 rounded hover:bg-green-700">Checkout</Link>
+
+          <div className="flex justify-between">
+            <span>Tax (10%)</span>
+            <span>${tax.toFixed(2)}</span>
+          </div>
+
+          <div className="flex justify-between">
+            <span>Shipping</span>
+            <span>
+              {shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}
+            </span>
+          </div>
+
+          <div className="border-t pt-4 flex justify-between font-semibold text-gray-900">
+            <span>Total</span>
+            <span>${grandTotal.toFixed(2)}</span>
+          </div>
         </div>
+
+        <Link
+          to="/checkout"
+          className="block mt-8 w-full text-center bg-black text-white py-3 rounded-lg hover:bg-gray-800 transition"
+        >
+          Proceed to Checkout
+        </Link>
+
+        <Link
+          to="/products"
+          className="block mt-4 text-center text-sm text-gray-600 hover:underline"
+        >
+          Continue Shopping
+        </Link>
       </div>
     </div>
   )
 }
+
+export default Cart

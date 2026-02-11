@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { AiFillStar } from "react-icons/ai";
+import LoadingSpinner from "../components/LoadingSpinner"
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import axios from "axios";
@@ -48,7 +49,6 @@ export default function Products() {
   // Infinite scroll observer
   const lastProductRef = useCallback(
     (node) => {
-      if (loading) return;
       if (observer.current) observer.current.disconnect();
       observer.current = new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting && hasMore) setPage((p) => p + 1);
@@ -91,11 +91,13 @@ console.log(products)
   };
 
   const categoryGroups = groupByCategory();
-
+if(loading) {
+  return  <LoadingSpinner />
+}
   return (
     <div className="bg-[#F7F2EB] min-h-screen px-4 md:px-16 py-10 flex flex-col lg:flex-row gap-8">
       {/* Sidebar Filters */}
-      <aside className="lg:w-64 flex-shrink-0">
+      <aside className="lg:w-64 shrink-0">
         <div className="bg-white rounded-2xl p-6 shadow-lg mb-6 sticky top-20">
           <h2 className="font-bold text-xl mb-4">Filters</h2>
           {/* Categories */}
@@ -192,7 +194,7 @@ console.log(products)
                 <Link
                   key={product._id}
                   to={`/products/${product._id}`}
-                  className="flex-shrink-0 w-64 bg-white rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-transform duration-300 relative"
+                  className="shrink-0 w-64 bg-white rounded-2xl shadow-lg hover:shadow-2xl hover:-translate-y-1 transition-transform duration-300 relative"
                   ref={idx === products.length - 1 ? lastProductRef : null}
                 >
                   <LazyLoadImage

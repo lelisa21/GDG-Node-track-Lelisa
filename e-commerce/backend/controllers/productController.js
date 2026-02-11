@@ -4,7 +4,7 @@ import { ApiResponse } from "../utils/apiResponse.js";
 // get all products by page within it's limited statuses
 export const getProducts = async(req, res) => {
     try {
-        const {category , minPrice, maxPrice, search,page = 1, limit = 10,  sort="createdAt" , order = "desc"} = req.query;
+        const {category , minPrice, maxPrice, search, page = 1, limit = 10,  sort="createdAt" , order = "desc"} = req.query;
     
         const filter = {isActive:true};
         if(category)  filter.category = category;
@@ -40,7 +40,7 @@ export const  getProduct = async (req ,res) => {
     const product = await Product.findById(req.params.id);
     if(!product) return res.status(404).json(ApiResponse.error("Product not Found"));
 
-    // find realted products
+    // find related products
     const related = await Product.find({
         _id:{$ne:product._id},
         category:product.category,
@@ -53,7 +53,6 @@ export const  getProduct = async (req ,res) => {
 };
 
 // create new Product
-
 export const createProduct = async (req, res) => {
     try {
         const product = new Product(req.body);

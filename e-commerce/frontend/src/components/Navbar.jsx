@@ -2,6 +2,8 @@ import { Link } from 'react-router-dom'
 import { useCart } from '../context/CartContext'
 import { useState , useEffect} from 'react'
 import { BiSun,BiMoon } from 'react-icons/bi'
+import { FiShoppingCart } from "react-icons/fi"
+
 export default function Navbar() {
   const { itemCount } = useCart()
   const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light')
@@ -18,12 +20,12 @@ export default function Navbar() {
           NaGiza
         </Link>
         
-        <div className="flex items-center gap-4">
-          <Link to="/products" className="hover:text-blue-600">Products</Link>
-          <Link to="/cart" className="hover:text-blue-600 relative">
-            Cart {itemCount > 0 && <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{itemCount}</span>}
+        <div className="flex items-center gap-4 mr-8">
+          <Link to="/products" className="hover:text-yellow-600">Products</Link>
+          <Link to="/cart" className="hover:text-yellow-600 relative">
+           <FiShoppingCart /> Cart {itemCount > 0 && <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">{itemCount}</span>}
           </Link>
-          <Link to="/orders" className="hover:text-blue-600">Orders</Link>
+          <Link to="/orders" className="hover:text-yellow-600">Orders</Link>
           
           <button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')} className="p-2">
             {theme === 'dark' ? <BiSun /> : <BiMoon />}

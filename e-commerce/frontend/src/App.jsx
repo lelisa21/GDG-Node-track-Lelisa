@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import { CartProvider } from './context/CartContext'
+import { CartContextProvider } from './context/CartContext'
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Products from './pages/Products'
@@ -9,7 +9,7 @@ import Orders from './pages/Orders'
 
 export default function App() {
   return (
-    <CartProvider>
+    <CartContextProvider>
       <BrowserRouter>
         <div className="min-h-screen bg-gray-50 dark:bg-[#1f241f] transition-colors">
           <Navbar />
@@ -24,6 +24,6 @@ export default function App() {
           </main>
         </div>
       </BrowserRouter>
-    </CartProvider>
+    </CartContextProvider>
   )
 }

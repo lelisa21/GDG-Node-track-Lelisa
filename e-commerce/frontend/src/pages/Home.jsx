@@ -1,12 +1,32 @@
 import { FaFacebook, FaInstagram, FaTelegram } from "react-icons/fa"
 import { Link } from "react-router-dom"
 import bgImage from "../assets/hero.png"
+import EthiopianFlag from "../components/EthiopianFlag"
+import { useProductContext } from "../hooks/useProducts"
+import { useEffect } from "react"
+
 export default function Home() {
+    // const {products , dispatch} = useProductContext();
+    // useEffect(() => {
+    //  const fetchProduct = async () => {
+    //   try {
+    //     const response  = await fetch("http://localhost:4000/api/product");
+    //   const data =  response.json()
+    //   if(!response.ok){
+    //     throw Error("Data Couldn't fetched HTTP request Error")
+    //   }
+    //   dispatch(products);
+    //   } catch (error) {
+        
+    //   }
+    //  }
+    //  fetchProduct();
+    // }, [])
   return (
-    <div className="bg-[#F7F2EB] text-[#2E1F18] w-[95%] mx-auto">
+    <div className="bg-[#F7F2EB] text-[#2E1F18] w-[95%] mx-auto ">
 
       {/* HERO - WHY */}
-      <section className="min-h-[70vh] max-h-[80vh] grid md:grid-cols-2 gap-12 px-6 md:px-24 py-20 items-center">
+      <section className=" relative min-h-[70vh]  h-full grid  md:grid-cols-2 gap-12 px-6 md:px-24 py-20 items-center overflow-hidden">
         <div className="space-y-6">
           <h1 className="text-3xl md:text-5xl font-serif leading-tight">
             Smart Shopping, <br /> Rooted in Ethiopian Life.
@@ -40,13 +60,11 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="hidden lg:block">
+        <div className="bg-[url(assets\im.png)]  w-full flex-1 flex justify-center items-center p-4 bg-scroll  rounded">
           <img
             src={bgImage}
             alt="NaGiza lifestyle"
-            width="400px"
-            height="400px"
-            className="rounded-3xl shadow-2xl object-cover size-122"
+            className="rounded-xl shadow-2xl object-cover  w-full h-auto  aspect-2/2 md:aspect-2/2 max-w-sm  lg:w-132 transition-all shadow-stone-400 duration-300 "
           />
         </div>
       </section>
@@ -98,7 +116,9 @@ export default function Home() {
             "Beauty",
             "Health",
             "Fitness",
-            "Lifestyle"
+            "Lifestyle",
+            "others"
+            // products.products.catagory
           ].map(cat => (
             <div
               key={cat}
@@ -125,15 +145,16 @@ export default function Home() {
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        {/* products.products.data */}
           {[1, 2, 3, 4].map(i => (
             <div
               key={i}
-              className="bg-[#F7F2EB] rounded-2xl p-4 border border-[#E5DED6] hover:shadow-lg transition"
+              className="bg-[#F7F2EB] rounded p-4 border border-[#E5DED6] hover:shadow-lg transition duration-500 "
             >
               <img
                 src={`/products/${i}.jpg`}
                 alt="product"
-                className="w-full h-40 object-cover rounded-xl mb-4"
+                className="w-full h-40 object-cover rounded mb-4"
               />
               <h3 className="font-semibold"> Product</h3>
               <p className="text-[#E9723D] font-bold">3,500 ETB</p>
@@ -214,7 +235,7 @@ export default function Home() {
               <li>Home</li>
               <li>Categories</li>
               <li>Products</li>
-              <li>Deals</li>
+              <li>Cart</li>
             </ul>
           </div>
 
@@ -239,8 +260,8 @@ export default function Home() {
 
         </div>
 
-        <div className="border-t border-gray-700 mt-12 pt-6 text-sm text-gray-500 text-center">
-          © 2026 NaGiza — Proudly Ethiopian 🇪🇹
+        <div className="border-t border-gray-600 mt-12 pt-6 text-sm text-gray-500 text-center  grid grid-cols-2   items-center ">
+          © {new Date().getFullYear()} NaGiza — Proudly Ethiopian <EthiopianFlag width="25" />
         </div>
       </footer>
 

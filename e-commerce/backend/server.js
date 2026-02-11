@@ -28,9 +28,9 @@ app.get("/", (req, res) => {
 });
 
 // routes
-app.use("/products", productRoutes);
-app.use("/cart", cartRoutes);
-app.use("/orders", orderRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/orders", orderRoutes);
 
 // Error 404 handler
 app.use(`/{*path}`, (req, res) => {

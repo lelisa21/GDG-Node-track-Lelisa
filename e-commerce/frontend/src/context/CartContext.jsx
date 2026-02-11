@@ -1,66 +1,124 @@
-import { createContext, useCallback, useContext, useReducer } from "react";
+import { createContext, useCallback, useContext, useEffect, useReducer } from "react"
 
-const CartContext = createContext();
+const CartContext = createContext()
 
-const cartReducer = (state , action) => {
-    const {cart , itemsMap} = state;
+const initialState = {
+  cart: [],
+  itemsMap: {}
+}
 
-    switch(action.type){
-        case "ADD": {
-         const {product, quantity} = action.payload
-         const existing = itemsMap[product._id]
-         if(existing){
-            const updated = cart.map(item => item.product._id === product._id ? {...item, quantity:item.quantity + quantity} : item)
-            return {cart: updated , itemsMap} 
-         }
-         const newItem =  {product, quantity}
-         return{
-            cart:[...cart , newItem],
-            itemsMap:{...itemsMap , [product._id]:true}
-         }
-        }
+const cartReducer = (state, action) => {
+  switch (action.type) {
 
-        case "REMOVE" : {
-            const {productId} = action.payload
-            const updated = cart.filter(item => item.product._id  !== productId)
-            const newMap = {...itemsMap}
-            delete newMap[productId]
-            return {cart:updated, itemsMap: newMap}
-        }
-        case "UPDATE" : {
-            const {productId , quantity} = action.payload
-            const updated = cart.map(item => item.product._id === productId ? {...item,quantity} : item)
-            return {cart:updated, itemsMap}
-        }
-        case "CLEAR" : {
-            return {cart:[], itemsMap: {}}
-        }
-        default:
-            return state
+    case "INIT":
+      return action.payload
+
+    case "ADD": {
+      const { product, quantity } = action.payload
+      const { cart, itemsMap } = state
+
+      const existing = cart.find(i => i.product._id === product._id)
+
+      if (existing) {
+        const updated = cart.map(item =>
+          item.product._id === product._id
+            ? { ...item, quantity: Math.min(item.quantity + quantity, product.stock) }
+            : item
+        )
+
+        return { cart: updated, itemsMap }
+      }
+
+      return {
+        cart: [...cart, { product, quantity: Math.min(quantity, product.stock) }],
+        itemsMap: { ...itemsMap, [product._id]: true }
+      }
     }
+
+    case "REMOVE": {
+      const { productId } = action.payload
+      const updated = state.cart.filter(i => i.product._id !== productId)
+
+      const map = { ...state.itemsMap }
+      delete map[productId]
+
+      return { cart: updated, itemsMap: map }
+    }
+
+    case "UPDATE": {
+      const { productId, quantity } = action.payload
+
+      const updated = state.cart.map(item =>
+        item.product._id === productId
+          ? { ...item, quantity: Math.max(1, quantity) }
+          : item
+      )
+
+      return { ...state, cart: updated }
+    }
+
+    case "CLEAR":
+      return initialState
+
+    default:
+      return state
+  }
 }
 
-export const CartProvider = ({children}) => {
-    const [state, dispatch] = useReducer(cartReducer , {cart:[],itemsMap:{}})
+export const CartContextProvider = ({ children }) => {
+  const [state, dispatch] = useReducer(cartReducer, initialState)
 
-    const addToCart = useCallback((product, quantity = 1) => {
-        dispatch({type: "ADD" , payload:{product , quantity}})
-    }, [])
+  // Load from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem("cart")
+    if (stored) dispatch({ type: "INIT", payload: JSON.parse(stored) })
+  }, [])
 
-    const removeFromCart = useCallback((productId) => {
-        dispatch({type: "REMOVE" , payload : {productId}}) , []
-    })
+  // Persist cart
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(state))
+  }, [state])
 
-    const updateQuantity = useCallback((productId , quantity) => {
-        dispatch({type:"UPDATE" , payload : {productId , quantity}})
-    } , [])
+  const addToCart = useCallback((product, quantity = 1) => {
+    dispatch({ type: "ADD", payload: { product, quantity } })
+  }, [])
 
-    const clearCart = useCallback(() => dispatch({type : "CLEAR"}) , [])
+  const removeFromCart = useCallback((productId) => {
+    dispatch({ type: "REMOVE", payload: { productId } })
+  }, [])
 
-    const total = state.cart.reduce((sum , item) => sum += (item.product?.price || 0) * item.quantity , 0);
+  const updateQuantity = useCallback((productId, quantity) => {
+    dispatch({ type: "UPDATE", payload: { productId, quantity } })
+  }, [])
 
-    const itemCount = state.cart.reduce((sum , item) => sum += item.quantity , 0)
+  const clearCart = useCallback(() => {
+    dispatch({ type: "CLEAR" })
+  }, [])
 
-    return (<CartContext.Provider value={{cart:state.cart, addToCart,removeFromCart,updateQuantity,clearCart,total,itemCount}}>{children}</CartContext.Provider>)
+  const total = state.cart.reduce(
+    (sum, i) => sum + i.product.price * i.quantity,
+    0
+  )
+
+  const itemCount = state.cart.reduce((sum, i) => sum + i.quantity, 0)
+
+  return (
+    <CartContext.Provider value={{
+      cart: state.cart,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+      total,
+      itemCount
+    }}>
+      {children}
+    </CartContext.Provider>
+  )
 }
-export const useCart = ()  => useContext(CartContext)
+
+export const useCart = () => {
+  const context = useContext(CartContext)
+  if (!context) throw new Error("useCart must be inside CartContextProvider")
+  return context
+}
