@@ -1,25 +1,58 @@
+import { useEffect, useState } from "react";
 import { FaFacebook, FaInstagram, FaTelegram } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import bgImage from "../assets/hero.png";
+
 import EthiopianFlag from "../components/EthiopianFlag";
+import api from "../services/api";
 
 export default function Home() {
-  // const {products , dispatch} = useProductContext();
-  // useEffect(() => {
-  //  const fetchProduct = async () => {
-  //   try {
-  //     const response  = await fetch("http://localhost:4000/api/product");
-  //   const data =  response.json()
-  //   if(!response.ok){
-  //     throw Error("Data Couldn't fetched HTTP request Error")
-  //   }
-  //   dispatch(products);
-  //   } catch (error) {
+  const [homeProducts, setHomeProducts] = useState([]);
+  const [homeCategories, setHomeCategories] = useState([]);
 
-  //   }
-  //  }
-  //  fetchProduct();
-  // }, [])
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchHomeData = async () => {
+      try {
+        const response = await api.get("/products", {
+          params: { page: 1, limit: 24, sort: "newest", minPrice: 0, maxPrice: 100000 },
+        });
+
+        const products = response?.data?.data?.products || [];
+        const categories = response?.data?.data?.filters?.categories || [];
+
+        if (mounted) {
+          setHomeProducts(products);
+          setHomeCategories(categories);
+        }
+      } catch (error) {
+        console.error("Home products fetch failed:", error);
+      }
+    };
+
+    fetchHomeData();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const fallbackCategories = [
+    "electronics",
+    "fashion",
+    "home",
+    "beauty",
+    "health",
+    "fitness",
+    "lifestyle",
+    "others",
+  ];
+
+  const categories = homeCategories.length > 0 ? homeCategories : fallbackCategories;
+  const curatedProducts = homeProducts.slice(0, 4);
+  const toTitleCase = (value) => value.charAt(0).toUpperCase() + value.slice(1);
+
   return (
     <div className="bg-[#F7F2EB] text-[#2E1F18] w-[95%] mx-auto ">
       {/* HERO - WHY */}
@@ -93,7 +126,7 @@ export default function Home() {
           ].map(([title, desc]) => (
             <div
               key={title}
-              className="bg-white p-6 rounded-2xl border border-[#E5DED6] hover:shadow-lg transition"
+              className="bg-white p-6 rounded-2xl  border-[#E5DED6] hover:shadow-lg transition"
             >
               <h3 className="font-semibold text-xl mb-2">{title}</h3>
               <p className="text-[#5C4A42]">{desc}</p>
@@ -107,28 +140,18 @@ export default function Home() {
         <h2 className="text-4xl font-serif mb-12">Shop by Category</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            "Electronics",
-            "Fashion",
-            "Home",
-            "Beauty",
-            "Health",
-            "Fitness",
-            "Lifestyle",
-            "others",
-            // products.products.catagory
-          ].map((cat) => (
+          {categories.map((cat) => (
             <div
               key={cat}
               className="relative h-56 rounded-3xl overflow-hidden group"
             >
               <img
-                src={`/categories/${cat}.jpg`}
+                src={`/p1.png`}
                 alt={cat}
                 className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
               />
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <h3 className="text-white text-2xl font-semibold">{cat}</h3>
+                <h3 className="text-white text-2xl font-semibold">{toTitleCase(cat)}</h3>
               </div>
             </div>
           ))}
@@ -142,15 +165,29 @@ export default function Home() {
           selections chosen for quality, comfort, and everyday value.
         </p>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {/* products.products.data */}
-          {[1, 2, 3, 4].map((i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {curatedProducts.length > 0 ? curatedProducts.map((product) => (
             <div
-              key={i}
+              key={product._id}
+              className="bg-[#F7F2EB] rounded p-4   hover:shadow-lg transition duration-500 "
+            >
+              <img
+                src={product.imageUrl || "https://i.pinimg.com/1200x/8c/db/e1/8cdbe123010c380e20f264a8fdd57938.jpg"}
+                alt={product.name}
+                className="w-full h-40 object-cover rounded mb-4"
+              />
+              <h3 className="font-semibold">{product.name}</h3>
+              <p className="text-[#5C4A42] text-sm mt-1 line-clamp-2">{product.description}</p>
+              <p className="text-[#E9723D] font-bold m-2">{product.price} ETB</p>
+              <Link to={"/orders"} className="bg-[#088cc5ad]  my-2 text-center rounded-2xl p-2  text-white" >Order Know</Link> 
+            </div>
+          )) : ["p1.png", "p2.png", "p3.png", "p4.png"].map((i) => (
+            <div
+              key={i.id}
               className="bg-[#F7F2EB] rounded p-4 border border-[#E5DED6] hover:shadow-lg transition duration-500 "
             >
               <img
-                src={`/products/${i}.jpg`}
+                src={i}
                 alt="product"
                 className="w-full h-40 object-cover rounded mb-4"
               />

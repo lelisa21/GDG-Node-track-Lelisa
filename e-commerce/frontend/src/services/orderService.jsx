@@ -1,14 +1,14 @@
-import api from "./api";
+import axios from "axios";
 
 const getPayload = (response) => response?.data?.data;
 
 export const createOrderAPI = async (data) => {
-  const res = await api.post("/orders", data);
+  const res = await axios.post("/orders", data);
   return getPayload(res);
 };
 
 export const getOrdersAPI = async ({ page = 1, limit = 5, status } = {}) => {
-  const res = await api.get("/orders", {
+  const res = await axios.get("/orders", {
     params: { page, limit, status },
   });
 

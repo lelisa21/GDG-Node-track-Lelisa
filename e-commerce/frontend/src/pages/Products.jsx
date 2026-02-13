@@ -27,11 +27,11 @@ export default function Products() {
   const observer = useRef();
 
   // Fetch products
-  const fetchProducts = async (reset = false) => {
+  const fetchProducts = async (reset = false, targetPage = page) => {
     try {
       setLoading(true);
       const { data } = await axios.get("http://localhost:4000/api/products", {
-        params: { ...filters, page },
+        params: { ...filters, page: targetPage },
       });
       const newProducts = data.data.products;
       const backendCategories =
@@ -41,7 +41,7 @@ export default function Products() {
       else setProducts((prev) => [...prev, ...newProducts]);
       setHasMore(Boolean(data?.pagination?.hasNext));
     } catch (err) {
-      console.error(err);
+      console.error("Products fetch failed:", err?.response?.data || err);
     } finally {
       setLoading(false);
     }
@@ -50,7 +50,7 @@ export default function Products() {
   useEffect(() => {
     setProducts([]);
     setPage(1);
-    fetchProducts(true);
+    fetchProducts(true, 1);
   }, [filters]);
 
   useEffect(() => {
