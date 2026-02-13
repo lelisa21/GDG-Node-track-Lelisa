@@ -1,16 +1,24 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { AiFillStar } from "react-icons/ai";
-import LoadingSpinner from "../components/LoadingSpinner"
+import LoadingSpinner from "../components/LoadingSpinner";
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import 'react-lazy-load-image-component/src/effects/blur.css';
+import "react-lazy-load-image-component/src/effects/blur.css";
 import axios from "axios";
-
+import { useCart } from "../context/CartContext";
+import { addToBackendCartAPI } from "../services/cartService";
 
 export default function Products() {
+  const { addToCart } = useCart();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({ search: "", category: "", sort: "newest", minPrice: 0, maxPrice: 100000 });
+  const [filters, setFilters] = useState({
+    search: "",
+    category: "",
+    sort: "newest",
+    minPrice: 0,
+    maxPrice: 100000,
+  });
   const [categories, setCategories] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [page, setPage] = useState(1);
@@ -22,12 +30,16 @@ export default function Products() {
   const fetchProducts = async (reset = false) => {
     try {
       setLoading(true);
-      const { data } = await axios.get("http://localhost:4000/api/products", { params: { ...filters, page } });
+      const { data } = await axios.get("http://localhost:4000/api/products", {
+        params: { ...filters, page },
+      });
       const newProducts = data.data.products;
-      setCategories(data.data.filters.categories || []);
+      const backendCategories =
+        data?.data?.filters?.categories || data?.data?.filters?.catagories || [];
+      setCategories(backendCategories);
       if (reset) setProducts(newProducts);
       else setProducts((prev) => [...prev, ...newProducts]);
-      setHasMore(data.pagination?.currentPage < data.pagination?.totalPages);
+      setHasMore(Boolean(data?.pagination?.hasNext));
     } catch (err) {
       console.error(err);
     } finally {
@@ -46,7 +58,6 @@ export default function Products() {
     fetchProducts();
   }, [page]);
 
-  // Infinite scroll observer
   const lastProductRef = useCallback(
     (node) => {
       if (observer.current) observer.current.disconnect();
@@ -55,9 +66,9 @@ export default function Products() {
       });
       if (node) observer.current.observe(node);
     },
-    [loading, hasMore]
+    [loading, hasMore],
   );
-console.log(products)
+  console.log(products);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -76,9 +87,14 @@ console.log(products)
     setFilters({ ...filters, minPrice: min, maxPrice: max });
   };
 
-  const addToCart = (product) => {
-    // Your cart logic here
-    toast.success(`${product.name} added to cart!`);
+  const handleAddToCart = async (product) => {
+    addToCart(product, 1);
+
+    try {
+      await addToBackendCartAPI(product._id, 1);
+    } catch (err) {
+      console.error("Backend cart sync failed:", err);
+    }
   };
 
   const groupByCategory = () => {
@@ -91,16 +107,16 @@ console.log(products)
   };
 
   const categoryGroups = groupByCategory();
-if(loading) {
-  return  <LoadingSpinner />
-}
+  if (loading) {
+    return <LoadingSpinner />;
+  }
   return (
     <div className="bg-[#F7F2EB] min-h-screen px-4 md:px-16 py-10 flex flex-col lg:flex-row gap-8">
-      {/* Sidebar Filters */}
+
       <aside className="lg:w-64 shrink-0">
         <div className="bg-white rounded-2xl p-6 shadow-lg mb-6 sticky top-20">
           <h2 className="font-bold text-xl mb-4">Filters</h2>
-          {/* Categories */}
+
           <div className="mb-4">
             <h3 className="font-semibold mb-2">Category</h3>
             <div className="flex flex-wrap gap-2">
@@ -109,7 +125,9 @@ if(loading) {
                   key={cat}
                   onClick={() => handleCategoryClick(cat)}
                   className={`px-3 py-1 rounded-full text-sm font-semibold transition ${
-                    filters.category === cat ? "bg-[#E9723D] text-white shadow" : "bg-gray-200 hover:bg-[#E9723D]/20"
+                    filters.category === cat
+                      ? "bg-[#E9723D] text-white shadow"
+                      : "bg-gray-200 hover:bg-[#E9723D]/20"
                   }`}
                 >
                   {cat.charAt(0).toUpperCase() + cat.slice(1)}
@@ -124,7 +142,7 @@ if(loading) {
             </div>
           </div>
 
-          {/* Price Range */}
+ 
           <div className="mb-4">
             <h3 className="font-semibold mb-2">Price (ETB)</h3>
             <div className="flex gap-2">
@@ -132,20 +150,24 @@ if(loading) {
                 type="number"
                 placeholder="Min"
                 value={filters.minPrice}
-                onChange={(e) => handlePriceChange(Number(e.target.value), filters.maxPrice)}
+                onChange={(e) =>
+                  handlePriceChange(Number(e.target.value), filters.maxPrice)
+                }
                 className="w-1/2 px-2 py-1 rounded border border-gray-300 focus:outline-none"
               />
               <input
                 type="number"
                 placeholder="Max"
                 value={filters.maxPrice}
-                onChange={(e) => handlePriceChange(filters.minPrice, Number(e.target.value))}
+                onChange={(e) =>
+                  handlePriceChange(filters.minPrice, Number(e.target.value))
+                }
                 className="w-1/2 px-2 py-1 rounded border border-gray-300 focus:outline-none"
               />
             </div>
           </div>
 
-          {/* Sort */}
+ 
           <div>
             <h3 className="font-semibold mb-2">Sort By</h3>
             <select
@@ -162,13 +184,19 @@ if(loading) {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col gap-12">
-        {/* Hero + Search */}
+    
         <div className="text-center mb-10 lg:hidden">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-2">Explore Premium Products</h1>
-          <p className="text-[#5C4A42] text-lg md:text-xl mb-6">Curated Ethiopian marketplace products just for you</p>
-          <form onSubmit={handleSearch} className="flex justify-center max-w-md mx-auto">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-2">
+            Explore Premium Products For Free
+          </h1>
+          <p className="text-[#5C4A42] text-lg md:text-xl mb-6">
+            Curated Ethiopian marketplace products just for you
+          </p>
+          <form
+            onSubmit={handleSearch}
+            className="flex justify-center max-w-md mx-auto"
+          >
             <input
               type="text"
               placeholder="Search products..."
@@ -185,7 +213,6 @@ if(loading) {
           </form>
         </div>
 
-        {/* Trending Horizontal Section */}
         {products.length > 0 && (
           <div>
             <h2 className="text-3xl font-bold mb-6">Trending</h2>
@@ -214,13 +241,17 @@ if(loading) {
                   )}
                   <div className="p-4">
                     <h3 className="font-semibold truncate">{product.name}</h3>
-                    <p className="text-[#5C4A42] text-sm line-clamp-2 mt-1">{product.description}</p>
+                    <p className="text-[#5C4A42] text-sm line-clamp-2 mt-1">
+                      {product.description}
+                    </p>
                     <div className="flex justify-between items-center mt-3">
-                      <span className="text-[#E9723D] font-bold">{product.price} ETB</span>
+                      <span className="text-[#E9723D] font-bold">
+                        {product.price} ETB
+                      </span>
                       <button
                         onClick={(e) => {
                           e.preventDefault();
-                          addToCart(product);
+                          handleAddToCart(product);
                         }}
                         className="bg-[#E9723D] text-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-[#d15c1f] transition-colors"
                       >
@@ -244,7 +275,11 @@ if(loading) {
                   key={product._id}
                   to={`/products/${product._id}`}
                   className="group relative bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300"
-                  ref={idx === categoryGroups[cat].length - 1 ? lastProductRef : null}
+                  ref={
+                    idx === categoryGroups[cat].length - 1
+                      ? lastProductRef
+                      : null
+                  }
                 >
                   <div className="relative">
                     <LazyLoadImage
@@ -265,13 +300,17 @@ if(loading) {
                   </div>
                   <div className="p-4">
                     <h3 className="font-semibold truncate">{product.name}</h3>
-                    <p className="text-[#5C4A42] text-sm line-clamp-2 mt-1">{product.description}</p>
+                    <p className="text-[#5C4A42] text-sm line-clamp-2 mt-1">
+                      {product.description}
+                    </p>
                     <div className="flex justify-between items-center mt-3">
-                      <span className="text-[#E9723D] font-bold">{product.price} ETB</span>
+                      <span className="text-[#E9723D] font-bold">
+                        {product.price} ETB
+                      </span>
                       <button
                         onClick={(e) => {
                           e.preventDefault();
-                          addToCart(product);
+                          handleAddToCart(product);
                         }}
                         className="bg-[#E9723D] text-white px-3 py-1 rounded-full text-sm font-semibold hover:bg-[#d15c1f] transition-colors"
                       >
@@ -285,8 +324,14 @@ if(loading) {
           </div>
         ))}
 
-        {loading && <div className="text-center py-10">Loading more products...</div>}
-        {!hasMore && <div className="text-center py-10 text-gray-500">No more products.</div>}
+        {loading && (
+          <div className="text-center py-10">Loading more products...</div>
+        )}
+        {!hasMore && (
+          <div className="text-center py-10 text-gray-500">
+            No more products.
+          </div>
+        )}
       </main>
     </div>
   );

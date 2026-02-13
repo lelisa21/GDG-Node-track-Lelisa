@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import { getOrdersAPI, cancelOrderAPI } from "../services/orderService"
-import { getSessionId } from "../utils/session"
 import { FiPackage } from "react-icons/fi"
 
 const Orders = () => {
@@ -10,9 +9,8 @@ const Orders = () => {
   useEffect(() => {
     const fetchOrders = async () => {
       try {
-        const sessionId = getSessionId()
-        const data = await getOrdersAPI(sessionId)
-        setOrders(data)
+        const { orders: fetchedOrders } = await getOrdersAPI()
+        setOrders(fetchedOrders)
       } catch (err) {
         console.error(err)
       } finally {

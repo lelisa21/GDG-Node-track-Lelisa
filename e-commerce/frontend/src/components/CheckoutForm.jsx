@@ -1,6 +1,6 @@
 import { useState } from "react"
 
-const CheckoutForm = ({ onSubmit }) => {
+const CheckoutForm = ({ onSubmit, submitError }) => {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -12,9 +12,15 @@ const CheckoutForm = ({ onSubmit }) => {
   const [errors, setErrors] = useState({})
 
   const handleChange = (e) => {
+    const { name, value } = e.target
+
+    if (errors[name]) {
+      setErrors(prev => ({ ...prev, [name]: "" }))
+    }
+
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [name]: value
     })
   }
 
@@ -56,76 +62,86 @@ const CheckoutForm = ({ onSubmit }) => {
   }
 
   return (
-    <div className="bg-white shadow-lg rounded-2xl p-8">
-      <h2 className="text-2xl font-bold mb-6">Checkout Details</h2>
+    <div className="overflow-hidden rounded-3xl border border-[#E5DED6] bg-[#F7F2EB] shadow-[0_20px_45px_rgba(46,31,24,0.08)]">
+      <div className="h-2 bg-gradient-to-r from-[#2E1F18] via-[#5C4A42] to-[#E9723D]" />
 
-      <form onSubmit={handleSubmit} className="space-y-5">
-        {/* Full Name */}
-        <div>
-          <label className="block mb-1 font-medium">Full Name</label>
-          <input
-            type="text"
-            name="fullName"
-            value={formData.fullName}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-          />
-          {errors.fullName && (
-            <p className="text-red-500 text-sm mt-1">{errors.fullName}</p>
-          )}
-        </div>
+      <div className="p-8">
+        <h2 className="font-serif text-3xl text-[#2E1F18]">Checkout Details</h2>
+        <p className="mt-2 text-sm text-[#5C4A42]">
+          Add your delivery details and we will process your order instantly.
+        </p>
 
-        {/* Email */}
-        <div>
-          <label className="block mb-1 font-medium">Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-          />
-          {errors.email && (
-            <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-          )}
-        </div>
+        {submitError && (
+          <div className="mt-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {submitError}
+          </div>
+        )}
 
-        {/* Phone */}
-        <div>
-          <label className="block mb-1 font-medium">Phone (Optional)</label>
-          <input
-            type="tel"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-[#2E1F18]">Full Name</label>
+            <input
+              type="text"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-[#D8CCC1] bg-white px-4 py-3 text-[#2E1F18] outline-none ring-[#E9723D] transition focus:ring-2"
+            />
+            {errors.fullName && (
+              <p className="mt-1 text-sm text-red-500">{errors.fullName}</p>
+            )}
+          </div>
 
-        {/* City */}
-        <div>
-          <label className="block mb-1 font-medium">City</label>
-          <input
-            type="text"
-            name="city"
-            value={formData.city}
-            onChange={handleChange}
-            className="w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-          />
-          {errors.city && (
-            <p className="text-red-500 text-sm mt-1">{errors.city}</p>
-          )}
-        </div>
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-[#2E1F18]">Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-[#D8CCC1] bg-white px-4 py-3 text-[#2E1F18] outline-none ring-[#E9723D] transition focus:ring-2"
+            />
+            {errors.email && (
+              <p className="mt-1 text-sm text-red-500">{errors.email}</p>
+            )}
+          </div>
 
-        {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition disabled:opacity-50"
-        >
-          {loading ? "Placing Order..." : "Place Order"}
-        </button>
-      </form>
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-[#2E1F18]">
+              Phone (Optional)
+            </label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-[#D8CCC1] bg-white px-4 py-3 text-[#2E1F18] outline-none ring-[#E9723D] transition focus:ring-2"
+            />
+          </div>
+
+          <div>
+            <label className="mb-1 block text-sm font-semibold text-[#2E1F18]">City</label>
+            <input
+              type="text"
+              name="city"
+              value={formData.city}
+              onChange={handleChange}
+              className="w-full rounded-xl border border-[#D8CCC1] bg-white px-4 py-3 text-[#2E1F18] outline-none ring-[#E9723D] transition focus:ring-2"
+            />
+            {errors.city && (
+              <p className="mt-1 text-sm text-red-500">{errors.city}</p>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded-xl bg-[#2E1F18] py-3 font-semibold text-[#F7F2EB] transition hover:bg-[#E9723D] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {loading ? "Placing Order..." : "Place Order"}
+          </button>
+        </form>
+      </div>
     </div>
   )
 }

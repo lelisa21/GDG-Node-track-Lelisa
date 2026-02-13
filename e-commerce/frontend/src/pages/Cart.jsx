@@ -6,7 +6,7 @@ import { FiShoppingBag } from "react-icons/fi"
 const Cart = () => {
   const { cart, total, itemCount, clearCart } = useCart()
 
-  const taxRate = 0.1
+  const taxRate = 0.08
   const tax = total * taxRate
   const shipping = total > 100 ? 0 : 10
   const grandTotal = total + tax + shipping

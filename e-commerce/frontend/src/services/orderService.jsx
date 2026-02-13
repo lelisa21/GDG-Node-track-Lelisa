@@ -1,33 +1,34 @@
-import axios from "axios"
+import api from "./api";
 
-const API = axios.create({
-  baseURL: "http://localhost:4000/api",
-  withCredentials: true
-})
+const getPayload = (response) => response?.data?.data;
 
 export const createOrderAPI = async (data) => {
-  const res = await API.post("/orders", data)
-  return res.data
-}
+  const res = await api.post("/orders", data);
+  return getPayload(res);
+};
 
-export const getOrdersAPI = async ({ sessionId, page = 1, limit = 5 }) => {
-  const res = await API.get("/orders", {
-    params: { sessionId, page, limit }
-  })
-  return res.data
-}
+export const getOrdersAPI = async ({ page = 1, limit = 5, status } = {}) => {
+  const res = await api.get("/orders", {
+    params: { page, limit, status },
+  });
+
+  return {
+    orders: getPayload(res) || [],
+    pagination: res?.data?.pagination,
+  };
+};
 
 export const getOrderByIdAPI = async (id) => {
-  const res = await API.get(`/orders/${id}`)
-  return res.data
-}
+  const res = await api.get(`/orders/${id}`);
+  return getPayload(res);
+};
 
 export const cancelOrderAPI = async (id) => {
-  const res = await API.delete(`/orders/${id}`)
-  return res.data
-}
+  const res = await api.delete(`/orders/${id}`);
+  return getPayload(res);
+};
 
 export const getOrderStatsAPI = async () => {
-  const res = await API.get("/orders/stats")
-  return res.data
-}
+  const res = await api.get("/orders/stats");
+  return getPayload(res);
+};

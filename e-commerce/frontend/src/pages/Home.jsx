@@ -1,30 +1,27 @@
-import { FaFacebook, FaInstagram, FaTelegram } from "react-icons/fa"
-import { Link } from "react-router-dom"
-import bgImage from "../assets/hero.png"
-import EthiopianFlag from "../components/EthiopianFlag"
-import { useProductContext } from "../hooks/useProducts"
-import { useEffect } from "react"
+import { FaFacebook, FaInstagram, FaTelegram } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import bgImage from "../assets/hero.png";
+import EthiopianFlag from "../components/EthiopianFlag";
 
 export default function Home() {
-    // const {products , dispatch} = useProductContext();
-    // useEffect(() => {
-    //  const fetchProduct = async () => {
-    //   try {
-    //     const response  = await fetch("http://localhost:4000/api/product");
-    //   const data =  response.json()
-    //   if(!response.ok){
-    //     throw Error("Data Couldn't fetched HTTP request Error")
-    //   }
-    //   dispatch(products);
-    //   } catch (error) {
-        
-    //   }
-    //  }
-    //  fetchProduct();
-    // }, [])
+  // const {products , dispatch} = useProductContext();
+  // useEffect(() => {
+  //  const fetchProduct = async () => {
+  //   try {
+  //     const response  = await fetch("http://localhost:4000/api/product");
+  //   const data =  response.json()
+  //   if(!response.ok){
+  //     throw Error("Data Couldn't fetched HTTP request Error")
+  //   }
+  //   dispatch(products);
+  //   } catch (error) {
+
+  //   }
+  //  }
+  //  fetchProduct();
+  // }, [])
   return (
     <div className="bg-[#F7F2EB] text-[#2E1F18] w-[95%] mx-auto ">
-
       {/* HERO - WHY */}
       <section className=" relative min-h-[70vh]  h-full grid  md:grid-cols-2 gap-12 px-6 md:px-24 py-20 items-center overflow-hidden">
         <div className="space-y-6">
@@ -33,7 +30,7 @@ export default function Home() {
           </h1>
 
           <p className="text-lg text-[#5C4A42] max-w-xl">
-            Thoughtfully curated products, fair pricing, and reliable delivery — 
+            Thoughtfully curated products, fair pricing, and reliable delivery —
             built for everyday life across Ethiopia.
           </p>
 
@@ -75,8 +72,9 @@ export default function Home() {
           We Believe Shopping Should Be Simple, Fair, and Local.
         </h2>
         <p className="max-w-3xl text-lg text-[#E5DED6]">
-          NaGiza was created to remove confusion, fake products, and delivery stress. 
-          Our goal is simple: make online shopping reliable, honest, and joyful.
+          NaGiza was created to remove confusion, fake products, and delivery
+          stress. Our goal is simple: make online shopping reliable, honest, and
+          joyful.
         </p>
       </section>
 
@@ -91,7 +89,7 @@ export default function Home() {
             ["Curated Selection", "Only carefully chosen products."],
             ["Fair Pricing", "No hidden fees or tricks."],
             ["Reliable Delivery", "Fast and trackable shipping."],
-            ["Local Support", "Real humans ready to help."]
+            ["Local Support", "Real humans ready to help."],
           ].map(([title, desc]) => (
             <div
               key={title}
@@ -117,9 +115,9 @@ export default function Home() {
             "Health",
             "Fitness",
             "Lifestyle",
-            "others"
+            "others",
             // products.products.catagory
-          ].map(cat => (
+          ].map((cat) => (
             <div
               key={cat}
               className="relative h-56 rounded-3xl overflow-hidden group"
@@ -141,12 +139,12 @@ export default function Home() {
       <section className="bg-white px-6 md:px-24 py-24">
         <h2 className="text-4xl font-serif mb-3">Handpicked for You</h2>
         <p className="text-[#5C4A42] mb-12">
-           selections chosen for quality, comfort, and everyday value.
+          selections chosen for quality, comfort, and everyday value.
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        {/* products.products.data */}
-          {[1, 2, 3, 4].map(i => (
+          {/* products.products.data */}
+          {[1, 2, 3, 4].map((i) => (
             <div
               key={i}
               className="bg-[#F7F2EB] rounded p-4 border border-[#E5DED6] hover:shadow-lg transition duration-500 "
@@ -171,23 +169,21 @@ export default function Home() {
           </h2>
           <p className="text-lg text-[#5C4A42] leading-relaxed">
             NaGiza was born from the daily struggles of finding honest products,
-            fair prices, and dependable delivery. We’re building a trusted digital
-            marketplace that truly serves Ethiopian households.
+            fair prices, and dependable delivery. We’re building a trusted
+            digital marketplace that truly serves Ethiopian households.
           </p>
         </div>
       </section>
 
       {/* TESTIMONIALS */}
       <section className="bg-white px-6 md:px-24 py-24">
-        <h2 className="text-4xl font-serif mb-14">
-          What Our Customers Say
-        </h2>
+        <h2 className="text-4xl font-serif mb-14">What Our Customers Say</h2>
 
         <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-8">
           {[
             ["Selam", "Addis Ababa", "Fast delivery and great quality."],
             ["Robel", "Bahir Dar", "Trusted shopping experience."],
-            ["Hana", "Mekelle", "Beautiful products and fair pricing."]
+            ["Hana", "Mekelle", "Beautiful products and fair pricing."],
           ].map(([name, city, quote]) => (
             <div
               key={name}
@@ -221,11 +217,11 @@ export default function Home() {
       {/* FOOTER */}
       <footer className="bg-[#1E1E1E] text-[#F7F2EB] px-6 md:px-24 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
-
           <div>
             <h3 className="text-2xl font-serif mb-4">NaGiza</h3>
             <p className="text-sm text-gray-400">
-              A modern Ethiopian marketplace built on trust, quality, and simplicity.
+              A modern Ethiopian marketplace built on trust, quality, and
+              simplicity.
             </p>
           </div>
 
@@ -251,20 +247,29 @@ export default function Home() {
 
           <div>
             <h4 className="font-semibold mb-3">Follow</h4>
-            <ul className="space-y-2 text-gray-400 text-sm " >
-              <li className="flex  items-center  gap-1"><FaTelegram />Telegram</li>
-              <li className="flex  items-center gap-1"> <FaFacebook />Facebook</li>
-              <li className="flex  items-center gap-1"><FaInstagram />Instagram</li>
+            <ul className="space-y-2 text-gray-400 text-sm ">
+              <li className="flex  items-center  gap-1">
+                <FaTelegram />
+                Telegram
+              </li>
+              <li className="flex  items-center gap-1">
+                {" "}
+                <FaFacebook />
+                Facebook
+              </li>
+              <li className="flex  items-center gap-1">
+                <FaInstagram />
+                Instagram
+              </li>
             </ul>
           </div>
-
         </div>
 
         <div className="border-t border-gray-600 mt-12 pt-6 text-sm text-gray-500 text-center  grid grid-cols-2   items-center ">
-          © {new Date().getFullYear()} NaGiza — Proudly Ethiopian <EthiopianFlag width="25" />
+          © {new Date().getFullYear()} NaGiza — Proudly Ethiopian{" "}
+          <EthiopianFlag width="25" />
         </div>
       </footer>
-
     </div>
-  )
+  );
 }

@@ -1,33 +1,54 @@
 import Product from "../models/ProductModel.js";
 import { ApiResponse } from "../utils/apiResponse.js";
 
-// get all products by page within it's limited statuses
 export const getProducts = async(req, res) => {
     try {
         const {category , minPrice, maxPrice, search, page = 1, limit = 10,  sort="createdAt" , order = "desc"} = req.query;
     
         const filter = {isActive:true};
         if(category)  filter.category = category;
-        if(minPrice || maxPrice) {
+
+        const parsedMinPrice = Number(minPrice);
+        const parsedMaxPrice = Number(maxPrice);
+
+        if(!Number.isNaN(parsedMinPrice) || !Number.isNaN(parsedMaxPrice)) {
             filter.price = {}
-            if(minPrice) filter.price.$gte  = parseFloat(minPrice);
-            if(maxPrice) filter.price.$gte  = parseFloat(maxPrice);
+            if(!Number.isNaN(parsedMinPrice)) filter.price.$gte  = parsedMinPrice;
+            if(!Number.isNaN(parsedMaxPrice)) filter.price.$lte  = parsedMaxPrice;
         }
-        if(search) filter.$text - {$search:search}
-        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        if(search?.trim()) {
+            const term = search.trim();
+            filter.$or = [
+                { name: { $regex: term, $options: "i" } },
+                { description: { $regex: term, $options: "i" } }
+            ];
+        }
+
+        const sortMap = {
+            newest: { createdAt: -1 },
+            priceLow: { price: 1 },
+            priceHigh: { price: -1 },
+            topRated: { rating: -1 }
+        };
+
+        const pageNumber = Math.max(parseInt(page, 10) || 1, 1);
+        const limitNumber = Math.max(parseInt(limit, 10) || 10, 1);
+        const skip = (pageNumber - 1) * limitNumber;
         const sortOrder = order === 'desc' ? -1 : 1;
+        const sortQuery = sortMap[sort] || { [sort]: sortOrder };
 
         const [products , total] = await Promise.all([
-            Product.find(filter).sort({[sort]:sortOrder})
-            .skip(skip).limit(parseInt(limit)),
+            Product.find(filter).sort(sortQuery)
+            .skip(skip).limit(limitNumber),
             Product.countDocuments(filter)
         ]);
 
-        const catagories = await Product.distinct("category" , {isActive:true});
+        const categories = await Product.distinct("category" , {isActive:true});
         res.json(ApiResponse.paginated({
             products,
-            filters:{catagories, minPrice, maxPrice}
-        },page, limit, total))
+            filters:{categories, minPrice: parsedMinPrice, maxPrice: parsedMaxPrice}
+        },pageNumber, limitNumber, total))
 
     } catch (error) {
         res.status(500).json(ApiResponse.error(error.message));

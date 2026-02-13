@@ -1,124 +1,139 @@
-import { createContext, useCallback, useContext, useEffect, useReducer } from "react"
+/* eslint-disable react-refresh/only-export-components */
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useReducer,
+} from "react";
 
-const CartContext = createContext()
+const CartContext = createContext();
 
 const initialState = {
   cart: [],
-  itemsMap: {}
-}
+  itemsMap: {},
+};
 
 const cartReducer = (state, action) => {
   switch (action.type) {
-
     case "INIT":
-      return action.payload
+      return action.payload;
 
     case "ADD": {
-      const { product, quantity } = action.payload
-      const { cart, itemsMap } = state
+      const { product, quantity } = action.payload;
+      const { cart, itemsMap } = state;
 
-      const existing = cart.find(i => i.product._id === product._id)
+      const existing = cart.find((i) => i.product._id === product._id);
 
       if (existing) {
-        const updated = cart.map(item =>
+        const updated = cart.map((item) =>
           item.product._id === product._id
-            ? { ...item, quantity: Math.min(item.quantity + quantity, product.stock) }
-            : item
-        )
+            ? {
+                ...item,
+                quantity: Math.min(item.quantity + quantity, product.stock),
+              }
+            : item,
+        );
 
-        return { cart: updated, itemsMap }
+        return { cart: updated, itemsMap };
       }
 
       return {
-        cart: [...cart, { product, quantity: Math.min(quantity, product.stock) }],
-        itemsMap: { ...itemsMap, [product._id]: true }
-      }
+        cart: [
+          ...cart,
+          { product, quantity: Math.min(quantity, product.stock) },
+        ],
+        itemsMap: { ...itemsMap, [product._id]: true },
+      };
     }
 
     case "REMOVE": {
-      const { productId } = action.payload
-      const updated = state.cart.filter(i => i.product._id !== productId)
+      const { productId } = action.payload;
+      const updated = state.cart.filter((i) => i.product._id !== productId);
 
-      const map = { ...state.itemsMap }
-      delete map[productId]
+      const map = { ...state.itemsMap };
+      delete map[productId];
 
-      return { cart: updated, itemsMap: map }
+      return { cart: updated, itemsMap: map };
     }
 
     case "UPDATE": {
-      const { productId, quantity } = action.payload
+      const { productId, quantity } = action.payload;
 
-      const updated = state.cart.map(item =>
+      const updated = state.cart.map((item) =>
         item.product._id === productId
           ? { ...item, quantity: Math.max(1, quantity) }
-          : item
-      )
+          : item,
+      );
 
-      return { ...state, cart: updated }
+      return { ...state, cart: updated };
     }
 
     case "CLEAR":
-      return initialState
+      return initialState;
 
     default:
-      return state
+      return state;
   }
-}
+};
 
 export const CartContextProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(cartReducer, initialState)
+  const [state, dispatch] = useReducer(cartReducer, initialState);
 
   // Load from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("cart")
-    if (stored) dispatch({ type: "INIT", payload: JSON.parse(stored) })
-  }, [])
+    const stored = localStorage.getItem("cart");
+    if (stored) dispatch({ type: "INIT", payload: JSON.parse(stored) });
+  }, []);
 
   // Persist cart
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(state))
-  }, [state])
+    localStorage.setItem("cart", JSON.stringify(state));
+  }, [state]);
 
   const addToCart = useCallback((product, quantity = 1) => {
-    dispatch({ type: "ADD", payload: { product, quantity } })
-  }, [])
+    dispatch({ type: "ADD", payload: { product, quantity } });
+  }, []);
 
   const removeFromCart = useCallback((productId) => {
-    dispatch({ type: "REMOVE", payload: { productId } })
-  }, [])
+    dispatch({ type: "REMOVE", payload: { productId } });
+  }, []);
 
   const updateQuantity = useCallback((productId, quantity) => {
-    dispatch({ type: "UPDATE", payload: { productId, quantity } })
-  }, [])
+    dispatch({ type: "UPDATE", payload: { productId, quantity } });
+  }, []);
 
   const clearCart = useCallback(() => {
-    dispatch({ type: "CLEAR" })
-  }, [])
+    dispatch({ type: "CLEAR" });
+  }, []);
 
   const total = state.cart.reduce(
     (sum, i) => sum + i.product.price * i.quantity,
-    0
-  )
+    0,
+  );
 
-  const itemCount = state.cart.reduce((sum, i) => sum + i.quantity, 0)
+  const itemCount = state.cart.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
-    <CartContext.Provider value={{
-      cart: state.cart,
-      addToCart,
-      removeFromCart,
-      updateQuantity,
-      clearCart,
-      total,
-      itemCount
-    }}>
+    <CartContext.Provider
+      value={{
+        cart: state.cart,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        total,
+        subtotal: total,
+        itemCount,
+      }}
+    >
       {children}
     </CartContext.Provider>
-  )
-}
+  );
+};
 
 export const useCart = () => {
-  const context = useContext(CartContext)
-  if (!context) throw new Error("useCart must be inside CartContextProvider")
-  return context
-}
+  const context = useContext(CartContext);
+  if (!context) throw new Error("useCart must be inside CartContextProvider");
+  return context;
+};
