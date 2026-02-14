@@ -32,7 +32,7 @@ const productSchema = new Schema({
     }},
     imageUrl:{
         type:String,
-        default: "https://www.pinterest.com/pin/1337074888578744/"
+        default: "../utils/image.png"
     },
     rating:{
         type:Number,

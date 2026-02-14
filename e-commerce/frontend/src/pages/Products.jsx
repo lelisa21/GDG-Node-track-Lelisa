@@ -6,7 +6,6 @@ import { LazyLoadImage } from "react-lazy-load-image-component";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
-import { addToBackendCartAPI } from "../services/cartService";
 
 export default function Products() {
   const { addToCart } = useCart();
@@ -87,14 +86,8 @@ export default function Products() {
     setFilters({ ...filters, minPrice: min, maxPrice: max });
   };
 
-  const handleAddToCart = async (product) => {
+  const handleAddToCart = (product) => {
     addToCart(product, 1);
-
-    try {
-      await addToBackendCartAPI(product._id, 1);
-    } catch (err) {
-      console.error("Backend cart sync failed:", err);
-    }
   };
 
   const groupByCategory = () => {

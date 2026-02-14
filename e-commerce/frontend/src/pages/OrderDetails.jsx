@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { getOrderByIdAPI } from "../services/orderService"
 import OrderStatusBadge from "../components/OrderStatusBadge"
 import OrderProgress from "../components/OrderProgress"
@@ -8,14 +8,19 @@ const OrderDetails = () => {
   const { id } = useParams()
   const [order, setOrder] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   useEffect(() => {
     const fetchOrder = async () => {
+      setError("")
+
       try {
         const data = await getOrderByIdAPI(id)
         setOrder(data)
       } catch (err) {
         console.error(err)
+        const message = err?.response?.data?.message || "Failed to load order details."
+        setError(message)
       } finally {
         setLoading(false)
       }
@@ -24,11 +29,16 @@ const OrderDetails = () => {
     fetchOrder()
   }, [id])
 
-  if (loading) return <div className="p-12">Loading...</div>
+  if (loading) return <div className="p-12">Loading order details...</div>
+  if (error) return <div className="p-12 text-red-600">{error}</div>
   if (!order) return <div className="p-12">Order not found.</div>
 
   return (
     <div className="max-w-4xl mx-auto px-6 py-12">
+      <Link to="/orders" className="text-sm text-[#2E1F18] underline">
+        Back to orders
+      </Link>
+
       <div className="flex justify-between items-center">
         <h2 className="text-xl font-semibold">{order.orderNumber}</h2>
         <OrderStatusBadge status={order.status} />

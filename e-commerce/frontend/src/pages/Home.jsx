@@ -140,18 +140,18 @@ export default function Home() {
         <h2 className="text-4xl font-serif mb-12">Shop by Category</h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {categories.map((cat) => (
+          {["/p1.png", "/p2.png", "/p3.png", "/p4.png"].map((cat) => (
             <div
               key={cat}
               className="relative h-56 rounded-3xl overflow-hidden group"
             >
               <img
-                src={`/p1.png`}
+                src={cat}
                 alt={cat}
                 className="w-full h-full object-cover group-hover:scale-110 transition duration-500"
               />
               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                <h3 className="text-white text-2xl font-semibold">{toTitleCase(cat)}</h3>
+                <h3 className="text-white text-2xl font-semibold">{}</h3>
               </div>
             </div>
           ))}

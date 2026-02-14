@@ -4,8 +4,8 @@ import * as orderController from "../controllers/ordersController.js"
 const router = express.Router();
 
 router.get("/", orderController.getOrders);
-router.get("/:id", orderController.getOrder);
 router.get("/stats" , orderController.getOrderStats)
+router.get("/:id", orderController.getOrder);
 
 router.post("/", orderController.createOrder);
 router.delete("/:id", orderController.cancelOrder);
