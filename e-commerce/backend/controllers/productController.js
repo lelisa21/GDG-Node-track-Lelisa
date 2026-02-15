@@ -89,12 +89,13 @@ export const updateProduct = async (req, res) => {
     try {
        const product = await Product.findByIdAndUpdate(
         req.params.id,
-        req,body,
+        req.body,
         {new:true , runValidators:true}
        );
        
        if(!product) 
         return res.status(404).json(ApiResponse.error("Product not Found"));
+
        res.json(ApiResponse.success(product, "product updated"));
     } catch (error) {
         res.status(400).json(ApiResponse.error(error.message))

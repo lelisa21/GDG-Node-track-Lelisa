@@ -180,7 +180,7 @@ export default function Products() {
       <main className="flex-1 flex flex-col gap-12">
     
         <div className="text-center mb-10 lg:hidden">
-          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-2">
+          <h1 className="text-4xl md:text-5xl font-serif font-bold mb-2 text-amber-300">
             Explore Premium Products For Free
           </h1>
           <p className="text-[#5C4A42] text-lg md:text-xl mb-6">
